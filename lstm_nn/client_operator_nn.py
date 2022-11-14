@@ -11,11 +11,11 @@ from keras.preprocessing.text import Tokenizer
 from keras.utils import pad_sequences
 
 
-PATH_TO_OPERATOR_DS = '/lstm_nn/datasets/complete_ds/operator.txt'
-PATH_TO_CLIENTS_DS = '/lstm_nn/datasets/complete_ds/client.txt'
+PATH_TO_OPERATOR_DS = 'C:\\nn_repo\\lstm_nn\\datasets\\complete_ds\\operator.txt'
+PATH_TO_CLIENTS_DS = 'C:\\nn_repo\\lstm_nn\\datasets\\complete_ds\\client.txt'
 
-PATH_TO_NEW_OPERATOR_DS = '/lstm_nn/datasets/operator.txt'
-PATH_TO_NEW_CLIENTS_DS = '/lstm_nn/datasets/client.txt'
+PATH_TO_NEW_OPERATOR_DS = 'C:\\nn_repo\\lstm_nn\\datasets\\operator.txt'
+PATH_TO_NEW_CLIENTS_DS = 'C:\\nn_repo\\lstm_nn\\datasets\\client.txt'
 
 
 with open(PATH_TO_OPERATOR_DS, 'r', encoding='utf-8') as f:
@@ -62,7 +62,7 @@ def convert_text_tokenizer(text=None, maxlen=max_text_len):
 
 def train_and_return_model(load=False):
     model_name = 'client_operator_model'
-    path_to_model_dir = f'C:\\keras\\lstm_network\\for_waves_scripts\\trained_models\\{model_name}'
+    path_to_model_dir = f'C:\\nn_repo\\lstm_nn\\trained_models\\{model_name}'
 
     if load is False:
         X = convert_text_tokenizer()
@@ -73,19 +73,18 @@ def train_and_return_model(load=False):
         Y = Y[indeces]
 
         model = Sequential()
-        model.add(Embedding(maxWordsCount, 256, input_length=max_text_len))
-        model.add(LSTM(256, return_sequences=True))
-        model.add(LSTM(128, return_sequences=True))
-        model.add(LSTM(64))
-        model.add(Dropout(0.5))
+        model.add(Embedding(maxWordsCount, 128, input_length=max_text_len))
+        model.add(LSTM(64, return_sequences=True))
+        model.add(LSTM(64, dropout=0.5, recurrent_dropout=0.1))
         model.add(Dense(1))
         model.add(Activation('sigmoid'))
+        model.summary()
 
         model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer=Adam(0.001))
 
         early_stop = EarlyStopping(monitor='loss', patience=10, verbose=1, min_delta=0.001, restore_best_weights=True)
 
-        history = model.fit(X, Y, batch_size=32, epochs=500, callbacks=[early_stop])
+        history = model.fit(X, Y, batch_size=128, epochs=500, callbacks=[early_stop])
 
         model.save(path_to_model_dir)
     else:
@@ -144,16 +143,3 @@ if __name__ == '__main__':
         print()
 
         # write_phrase(phrase, pred)
-
-    # write_phrase('phrase', [1])
-
-    # with open('C:\\keras\lstm_network\\for_waves_scripts\\test_file.txt', 'r', encoding='utf-8') as f:
-    #     texts_client = f.readlines()
-    #     res = [i.replace('\ufeff', '').replace('\n', '') for i in texts_client if i != '\\n']
-    #     # texts_client[0] = texts_client[0].replace('\ufeff', '').replace('\n', '')
-    #     print(res)
-
-    # with open('client.txt', 'r', encoding='utf-8') as f:
-    #     texts_client = f.readlines()
-    #     texts_client[0] = texts_client[0].replace('\ufeff', '')  # убираем первый невидимый символ
-    #     print(texts_client)
